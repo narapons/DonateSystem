@@ -1,0 +1,13 @@
+---
+name: DonateSystem
+main: DonateSystem\main
+version: 1.0.0
+api: 3.0.0
+author: narapon
+
+
+commands:
+  donate:
+    usage: "/donate < pay | check | setting | reset >"
+    description: 投票システム
+...
