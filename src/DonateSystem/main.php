@@ -34,53 +34,50 @@ class main extends PluginBase implements Listener
     {
         $max = $this->data->get("MAX");
         $data = $this->data->get("DATA");
+        $pay_max = $max - $data;
         $money = EconomyAPI::getInstance()->myMoney($sender->getName());
         switch ($command->getName()) {
             case"donate":
-                if(!isset($args[0])){
+                if (!isset($args[0])) {
                     $sender->sendMessage("§e[寄付システム] /donate < pay | check | setting >");
-                }else {
+                } else {
                     switch ($args[0]) {
                         case"pay":
                             if ($data >= $max) {
                                 $sender->sendMessage("§e[寄付システム] 現在は寄付金を受け付けていません。");
+                            } else if (!isset($args[1])) {
+                                $sender->sendMessage("§e[寄付システム] 寄付する金額を指定してください。");
+                            } else if ($args[1] > $money) {
+                                $sender->sendMessage("§e[寄付システム] 残高不足です。");
+                            } else if( $args[1] > $pay_max) {
+                                $sender->sendMessage("§e[寄付システム] 寄付する金額を{$pay_max}円以下にしてください。");
                             } else {
-                                if (!isset($args[1])) {
-                                    $sender->sendMessage("§e[寄付システム] 寄付する金額を指定してください。");
-                                } else {
-                                    if ($args[1] > $money) {
-                                        $sender->sendMessage("§e[寄付システム] 残高不足です。");
-                                    } else {
-                                        EconomyAPI::getInstance()->reduceMoney($sender->getName(), $args[1]);
-                                        $this->data->set("DATA", $data + $args[1]);
-                                        $this->data->save();
-                                        $this->data->reload();
-                                        $sender->sendMessage("§6[寄付システム] {$args[1]}円を寄付しました。");
-                                    }
-                                }
+                                EconomyAPI::getInstance()->reduceMoney($sender->getName(), $args[1]);
+                                $this->data->set("DATA", $data + $args[1]);
+                                $this->data->save();
+                                $this->data->reload();
+                                $sender->sendMessage("§6[寄付システム] {$args[1]}円を寄付しました。");
                             }
                             break;
                         case"check":
                             $sender->sendMessage("§6[寄付システム] {$max}円のうち{$data}円が集まっています。");
                             break;
                         case"setting":
-                            if(!$sender->isOp()){
+                            if (!$sender->isOp()) {
                                 $sender->sendMessage("§cこのコマンドを実行する権限がありません。");
-                            }else{
-                                if(!isset($args[1])){
+                            } else if (!isset($args[1])) {
                                     $sender->sendMessage("§e[寄付システム] 設定をする金額を入力してください。");
-                                }else{
-                                    $this->data->set("MAX",$args[1]);
-                                    $this->data->save();
-                                    $this->data->reload();
-                                    $sender->sendMessage("§6[寄付システム] 上限を{$args[1]}円に設定しました。");
-                                }
+                            } else {
+                                $this->data->set("MAX", $args[1]);
+                                $this->data->save();
+                                $this->data->reload();
+                                $sender->sendMessage("§6[寄付システム] 上限を{$args[1]}円に設定しました。");
                             }
                             break;
                         case"reset":
-                            if(!$sender->isOp()){
+                            if (!$sender->isOp()) {
                                 $sender->sendMessage("§cこのコマンドを実行する権限がありません。");
-                            }else{
+                            } else {
                                 $this->data->set("DATA",0);
                                 $this->data->save();
                                 $this->data->reload();
@@ -95,7 +92,6 @@ class main extends PluginBase implements Listener
                 break;
         }
         return true;
-
     }
 
 }
